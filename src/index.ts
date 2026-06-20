@@ -2,6 +2,7 @@ import { handleLanding } from './handlers/landing';
 import { handleNip05 } from './handlers/nip05';
 import { handleClaim } from './handlers/claim';
 import { handleCheck } from './handlers/check';
+import { handleProfile } from './handlers/profile';
 import type { Env } from './lib/kv';
 
 export default {
@@ -27,6 +28,8 @@ export default {
     if (url.pathname === '/claim') return handleClaim(request, env);
     if (url.pathname === '/check') return handleCheck(request, env);
     if (url.pathname === '/' || url.pathname === '') return handleLanding();
+
+    if (/^\/[a-z0-9][a-z0-9_-]{0,29}$/.test(url.pathname)) return handleProfile(request, env);
 
     return new Response('Not found', { status: 404 });
   },

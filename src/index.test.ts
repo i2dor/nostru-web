@@ -1,16 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { mockNip05, mockClaim, mockCheck, mockLanding } = vi.hoisted(() => ({
+const { mockNip05, mockClaim, mockCheck, mockLanding, mockProfile } = vi.hoisted(() => ({
   mockNip05:   vi.fn(),
   mockClaim:   vi.fn(),
   mockCheck:   vi.fn(),
   mockLanding: vi.fn(),
+  mockProfile: vi.fn(),
 }));
 
 vi.mock('./handlers/nip05',   () => ({ handleNip05:   mockNip05   }));
 vi.mock('./handlers/claim',   () => ({ handleClaim:   mockClaim   }));
 vi.mock('./handlers/check',   () => ({ handleCheck:   mockCheck   }));
 vi.mock('./handlers/landing', () => ({ handleLanding: mockLanding }));
+vi.mock('./handlers/profile', () => ({ handleProfile: mockProfile }));
 
 import worker from './index';
 
@@ -28,6 +30,7 @@ describe('router', () => {
     mockClaim.mockResolvedValue(OK);
     mockCheck.mockResolvedValue(OK);
     mockLanding.mockResolvedValue(OK);
+    mockProfile.mockResolvedValue(OK);
   });
 
   it('routes GET / to landing', async () => {
@@ -56,8 +59,13 @@ describe('router', () => {
     expect(res.headers.get('Location')).toBe('https://nostru.net/check?name=alice');
   });
 
+  it('routes GET /:name to profile handler', async () => {
+    await worker.fetch(req('/alice'), ENV);
+    expect(mockProfile).toHaveBeenCalledOnce();
+  });
+
   it('returns 404 for unknown routes', async () => {
-    const res = await worker.fetch(req('/unknown'), ENV);
+    const res = await worker.fetch(req('/unknown/path'), ENV);
     expect(res.status).toBe(404);
   });
 
