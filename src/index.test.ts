@@ -50,6 +50,12 @@ describe('router', () => {
     expect(mockCheck).toHaveBeenCalledOnce();
   });
 
+  it('redirects http to https', async () => {
+    const res = await worker.fetch(new Request('http://nostru.net/check?name=alice'), ENV);
+    expect(res.status).toBe(301);
+    expect(res.headers.get('Location')).toBe('https://nostru.net/check?name=alice');
+  });
+
   it('returns 404 for unknown routes', async () => {
     const res = await worker.fetch(req('/unknown'), ENV);
     expect(res.status).toBe(404);
